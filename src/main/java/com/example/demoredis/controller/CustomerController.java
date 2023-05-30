@@ -40,6 +40,12 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PostMapping(value = "/push-customers-queue")
+    public ResponseEntity<Object> addCustomerTest(@RequestBody Customer customer) {
+        Customer created = this.customerService.addQueue(customer);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
     @PutMapping(value = "/customers")
     public ResponseEntity<Object> updateCustomer(@RequestBody Customer customer) {
         Customer updated = this.customerService.update(customer);

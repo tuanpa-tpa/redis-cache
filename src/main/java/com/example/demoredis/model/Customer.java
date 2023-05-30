@@ -11,12 +11,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 @Entity
 @Table(name = "customer", schema = "public")
-public class Customer {
+public class Customer implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,15 +26,5 @@ public class Customer {
     private long id;
 
     private String name;
-
-    private String contactName;
-
-    private String address;
-
-    private String city;
-
-    private String postalCode;
-
-    private String country;
 
 }

@@ -1,4 +1,5 @@
 package com.example.demoredis.service.impl;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,7 +11,10 @@ import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.PostConstruct;
 
 
 @Service
@@ -19,6 +23,15 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Autowired
     private CustomerRepository customerRepository;
+
+    private static final String QUEUE_KEY = "customer_queue";
+
+    @Autowired
+    private final RedisTemplate<String, Serializable> redisTemplate;
+
+    public CustomerServiceImpl(RedisTemplate<String, Serializable> redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     @Cacheable(cacheNames = "customers")
     @Override
@@ -33,6 +46,12 @@ public class CustomerServiceImpl implements CustomerService {
         return this.customerRepository.save(customer);
     }
 
+    @Override
+    public Customer addQueue(Customer customer) {
+        pushCustomerToQueue(customer);
+        return null;
+    }
+
     @CacheEvict(cacheNames = "customers", allEntries = true)
     @Override
     public Customer update(Customer customer) {
@@ -41,11 +60,6 @@ public class CustomerServiceImpl implements CustomerService {
             return null;
         Customer repCustomer = optCustomer.get();
         repCustomer.setName(customer.getName());
-        repCustomer.setContactName(customer.getContactName());
-        repCustomer.setAddress(customer.getAddress());
-        repCustomer.setCity(customer.getCity());
-        repCustomer.setPostalCode(customer.getPostalCode());
-        repCustomer.setCountry(customer.getCountry());
         return this.customerRepository.save(repCustomer);
     }
 
@@ -71,6 +85,24 @@ public class CustomerServiceImpl implements CustomerService {
             e.printStackTrace();
         }
         System.out.println("Long Wait End");
+    }
+
+    public void pushCustomerToQueue(Customer customer) {
+        redisTemplate.opsForList().rightPush(QUEUE_KEY, customer);
+    }
+
+    public Customer popCustomerFromQueue() {
+        return (Customer) redisTemplate.opsForList().leftPop(QUEUE_KEY);
+    }
+    public void startProcessing() {
+        new Thread(() -> {
+            while (true) {
+                Customer customer = popCustomerFromQueue();
+                if (customer != null) {
+                    System.out.println("alo");
+                }
+            }
+        }).start();
     }
 
 }

@@ -10,6 +10,8 @@ public interface CustomerService {
 
     public Customer add(Customer customer);
 
+    public Customer addQueue(Customer customer);
+
     public Customer update(Customer customer);
 
     public void delete(long id);
