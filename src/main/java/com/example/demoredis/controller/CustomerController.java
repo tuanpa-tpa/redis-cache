@@ -46,6 +46,12 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @GetMapping(value = "/execute-queue")
+    public ResponseEntity<Object> executeQueue() {
+        this.customerService.executeQueue();
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping(value = "/customers")
     public ResponseEntity<Object> updateCustomer(@RequestBody Customer customer) {
         Customer updated = this.customerService.update(customer);

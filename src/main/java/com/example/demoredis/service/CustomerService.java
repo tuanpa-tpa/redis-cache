@@ -12,6 +12,8 @@ public interface CustomerService {
 
     public Customer addQueue(Customer customer);
 
+    public void executeQueue();
+
     public Customer update(Customer customer);
 
     public void delete(long id);

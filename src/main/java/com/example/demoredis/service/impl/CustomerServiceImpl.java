@@ -52,6 +52,11 @@ public class CustomerServiceImpl implements CustomerService {
         return null;
     }
 
+    @Override
+    public void executeQueue() {
+        startProcessing();
+    }
+
     @CacheEvict(cacheNames = "customers", allEntries = true)
     @Override
     public Customer update(Customer customer) {
@@ -94,6 +99,8 @@ public class CustomerServiceImpl implements CustomerService {
     public Customer popCustomerFromQueue() {
         return (Customer) redisTemplate.opsForList().leftPop(QUEUE_KEY);
     }
+
+    @CacheEvict(cacheNames = "customers", allEntries = true)
     public void startProcessing() {
         new Thread(() -> {
             while (true) {
